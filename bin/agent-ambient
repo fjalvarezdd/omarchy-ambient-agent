@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Ajusta el estado del borde ambiental del agente.
+# Uso: agent-ambient <idle|working|needs|done|error>
+S="${1:-idle}"
+case "$S" in idle|working|needs|done|error) ;; *) echo "estado inválido: $S (idle|working|needs|done|error)"; exit 1;; esac
+mkdir -p "$HOME/.local/state/omarchy"
+printf '%s' "$S" > "$HOME/.local/state/omarchy/agent-ambient"
+# 'done' vuelve a idle solo tras 2.5s
+if [ "$S" = "done" ]; then TMO=$(python3 -c "import json;print(json.load(open('$HOME/.config/omarchy/ambient-agent.json')).get('doneTimeoutMs',2500)/1000)" 2>/dev/null || echo 2.5); ( sleep "$TMO"; printf 'idle' > "$HOME/.local/state/omarchy/agent-ambient" ) & fi

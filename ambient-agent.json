@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "borderWidth": 3,
+  "glowWidth": 26,
+  "glowOpacity": 0.40,
+  "radius": 16,
+  "colors": {
+    "working": "#7dcfff",
+    "needs":   "#e0af68",
+    "done":    "#9ece6a",
+    "error":   "#f7768e"
+  },
+  "periods": { "working": 3800, "needs": 1500, "error": 1100 },
+  "doneTimeoutMs": 2500
+}

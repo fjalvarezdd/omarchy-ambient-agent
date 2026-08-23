@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "ambient-agent",
+  "name": "Ambient Agent",
+  "version": "0.1.0",
+  "author": "fjalvarezdd",
+  "description": "Screen-edge ambient glow that reflects AI agent state",
+  "kinds": [
+    "service"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/fjalvarezdd/omarchy-ambient-agent"
+}
