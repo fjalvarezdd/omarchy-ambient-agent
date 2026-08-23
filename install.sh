@@ -14,4 +14,4 @@ cp "$HERE/plugin/"* "$HOME/.config/omarchy/plugins/ambient-agent/"
 omarchy plugin enable ambient-agent 2>/dev/null || true
 omarchy restart shell 2>/dev/null || true
 echo "✓ Ambient Agent instalado. Prueba:  agent-ambient working   (y  agent-ambient idle)"
-echo "  Auto-integración con Claude Code: copia hooks/claude-code.json en ~/.claude/settings.json"
+echo "  Integración automática: llama a agent-ambient <estado> desde los hooks de tu agente (ver hooks/example-hooks.json)."

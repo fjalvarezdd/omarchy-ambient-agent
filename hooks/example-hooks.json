@@ -1,0 +1,9 @@
+{
+  "_comment": "Example for agents/editors that run a command on events. Point each event at agent-ambient <state>.",
+  "hooks": {
+    "on_task_start":     "agent-ambient working",
+    "on_waiting_input":  "agent-ambient needs",
+    "on_task_finished":  "agent-ambient done",
+    "on_error":          "agent-ambient error"
+  }
+}

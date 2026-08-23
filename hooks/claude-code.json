@@ -1,8 +1,0 @@
-{
-  "_comment": "Añade esto a ~/.claude/settings.json para que el borde reaccione solo a Claude Code.",
-  "hooks": {
-    "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "agent-ambient working" }] }],
-    "Notification":     [{ "hooks": [{ "type": "command", "command": "agent-ambient needs" }] }],
-    "Stop":             [{ "hooks": [{ "type": "command", "command": "agent-ambient done" }] }]
-  }
-}

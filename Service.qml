@@ -28,6 +28,21 @@ Scope {
   readonly property int   rad:   n("radius", 16)
   readonly property bool  enabled: n("enabled", true)
 
+
+  // Auto-instalación en el primer arranque: CLI + config + fichero de estado.
+  // Hace que `omarchy plugin add ... --enable` sea suficiente (sin clonar ni install.sh).
+  Process {
+    id: bootstrap
+    running: true
+    command: ["bash","-lc",
+      "D=\"$HOME/.config/omarchy/plugins/ambient-agent\"; " +
+      "mkdir -p \"$HOME/.local/state/omarchy\" \"$HOME/.local/bin\" \"$HOME/.config/omarchy\"; " +
+      "[ -f \"$HOME/.local/state/omarchy/agent-ambient\" ] || printf idle > \"$HOME/.local/state/omarchy/agent-ambient\"; " +
+      "[ -f \"$D/bin/agent-ambient\" ] && install -m755 \"$D/bin/agent-ambient\" \"$HOME/.local/bin/agent-ambient\"; " +
+      "[ -f \"$HOME/.config/omarchy/ambient-agent.json\" ] || cp \"$D/ambient-agent.json\" \"$HOME/.config/omarchy/ambient-agent.json\" 2>/dev/null; " +
+      "true"]
+  }
+
   // state file
   Process {
     id: reader
