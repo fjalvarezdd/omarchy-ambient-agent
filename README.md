@@ -6,6 +6,8 @@ The screen edge *breathes* cyan while an agent works, warms to amber the moment 
 
 > `omarchy.agents` shows agent *usage and limits*. Ambient Agent shows the thing that actually costs you time when you run several agents at once: **which one is silently waiting for you.**
 
+**▶ [Live demo & docs](https://fjalvarezdd.github.io/omarchy-ambient-agent/)**  ·  by [@fjalvarezdd](https://github.com/fjalvarezdd)
+
 ![demo](demo.gif)
 
 ## Install (one command)
