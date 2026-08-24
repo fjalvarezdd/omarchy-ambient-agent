@@ -43,18 +43,20 @@ Scope {
       "true"]
   }
 
-  // state file
+  // state file — bounded, safe read: regular file only (no symlink/FIFO/device),
+  // 256-byte ceiling, 1s deadline. Cannot exhaust or block the shared shell.
   Process {
     id: reader
-    command: ["cat", Quickshell.env("HOME") + "/.local/state/omarchy/agent-ambient"]
+    command: ["timeout","1","sh","-c","F=\"$1\"; [ -f \"$F\" ] && [ ! -L \"$F\" ] && head -c 256 -- \"$F\" || true","_", Quickshell.env("HOME") + "/.local/state/omarchy/agent-ambient"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: { var s=(text||"").trim(); if(s.length) root.state=s; } }
   }
   Timer { interval: 300; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!reader.running) reader.running = true }
 
-  // config file (hot-reload)
+  // config file (hot-reload) — bounded, safe read: regular file only, 8 KB ceiling,
+  // 1s deadline. Oversized or malformed input simply falls back to defaults.
   Process {
     id: cfgReader
-    command: ["cat", Quickshell.env("HOME") + "/.config/omarchy/ambient-agent.json"]
+    command: ["timeout","1","sh","-c","F=\"$1\"; [ -f \"$F\" ] && [ ! -L \"$F\" ] && head -c 8192 -- \"$F\" || true","_", Quickshell.env("HOME") + "/.config/omarchy/ambient-agent.json"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: { try { var o=JSON.parse(text||"{}"); root.cfg=o; } catch(e) {} } }
   }
   Timer { interval: 3000; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!cfgReader.running) cfgReader.running = true }
