@@ -19,7 +19,7 @@
   :root{
     --bg:#16161e;--panel:#1a1b26;--surface:#24283b;--elevated:#2f334d;--line:#2c3050;
     --ink:#c0caf5;--muted:#787ea6;--faint:#565f89;--brand:#7aa2f7;
-    --s-work:#7dcfff;--s-need:#e0af68;--s-done:#9ece6a;--s-err:#f7768e;
+    --s-work:#7dcfff;--s-need:#e0af68;--s-done:#4c8dff;--s-err:#f7768e;
     --wp1:#2a2350;--wp2:#3b2b57;--wp3:#7a3f6d;--wp4:#c56a7a;
     --glow:transparent;--glow-soft:transparent;
   }
@@ -58,7 +58,15 @@
     box-shadow:inset 0 0 0 2px var(--glow),inset 0 0 46px 2px var(--glow-soft),0 0 60px -6px var(--glow-soft);
     opacity:1;transition:box-shadow .5s ease}
   @media (prefers-reduced-motion:no-preference){
-    .screen[data-state="working"] .ambient{animation:breathe 3.8s ease-in-out infinite}
+    .screen[data-state="working"] .ambient{opacity:.16;animation:none}
+  @property --sa{syntax:"<angle>";inherits:false;initial-value:0deg}
+  .snake{position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:6;opacity:0;padding:4px;transition:opacity .3s;
+    background:conic-gradient(from var(--sa),transparent 0 64%,color-mix(in srgb,var(--s-work) 35%,transparent) 74%,var(--s-work) 90%,#eafcff 97%,transparent 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+    filter:drop-shadow(0 0 9px var(--s-work))}
+  .screen[data-state="working"] .snake{opacity:1;animation:spin 2.4s linear infinite}
+  @keyframes spin{to{--sa:360deg}}
     .screen[data-state="needs"] .ambient{animation:attn 1.5s ease-in-out infinite}
     .screen[data-state="error"] .ambient{animation:attn 1.1s ease-in-out infinite}
     .screen.flash .ambient{animation:flash 1.5s ease-out 1}
@@ -173,6 +181,7 @@
   <div class="stage">
     <div class="screen" id="screen" data-state="idle" aria-live="polite">
       <div class="ambient"></div>
+      <div class="snake"></div>
       <div class="bar">
         <span class="ws"><b class="on">1</b><b>2</b><b>3</b><b>4</b><b>5</b></span>
         <span class="cell center">◷ 00:47</span>
@@ -206,9 +215,9 @@
   <section>
     <p class="kick">The states</p>
     <div class="grid">
-      <div class="card work"><div class="h"><span class="k"></span><h3>Working</h3></div><p>Soft cyan breathing around the edge — slow, alive, easy to ignore. You know it's thinking without looking away.</p><span class="mo">breathe · 3.8s</span></div>
+      <div class="card work"><div class="h"><span class="k"></span><h3>Working</h3></div><p>A lit segment snakes around the edge in your selected theme accent — like a loading wheel, but the whole screen. Calm, alive.</p><span class="mo">snake · theme accent</span></div>
       <div class="card needs"><div class="h"><span class="k"></span><h3>Needs you</h3></div><p>Warms to amber and quickens. The one state that earns your attention: an agent is blocked on a decision.</p><span class="mo">pulse · 1.5s · toast</span></div>
-      <div class="card done"><div class="h"><span class="k"></span><h3>Done</h3></div><p>A single green flash that settles back to calm. Satisfying, brief, then gone — no badge to dismiss later.</p><span class="mo">flash · one-shot</span></div>
+      <div class="card done"><div class="h"><span class="k"></span><h3>Done</h3></div><p>When it finishes, the edge settles to a steady, solid blue all the way around — unmistakable, no flashing.</p><span class="mo">solid · blue</span></div>
       <div class="card error"><div class="h"><span class="k"></span><h3>Error</h3></div><p>Red, sharper cadence. Something failed and wants eyes. Distinct enough from “needs you” to read across the room.</p><span class="mo">pulse · 1.1s</span></div>
     </div>
   </section>
@@ -276,7 +285,7 @@ agent-ambient done</code></pre>
   function setState(s){
     if(flashT){clearTimeout(flashT);flashT=null;}
     screen.classList.remove('flash');
-    if(s==='done'){screen.dataset.state='done';void screen.offsetWidth;screen.classList.add('flash');paintTerm('done');
+    if(s==='done'){screen.dataset.state='done';void screen.offsetWidth;paintTerm('done');
       flashT=setTimeout(function(){screen.classList.remove('flash');screen.dataset.state='idle';paintTerm('idle');pressChip('idle');},1700);
     }else{screen.dataset.state=s;paintTerm(s);}
     orbs[0].dataset.o=(s==='done'?'done':s);orbs[1].dataset.o='idle';orbs[2].dataset.o='idle';
@@ -295,7 +304,7 @@ agent-ambient done</code></pre>
     at(7600,function(){orbs[0].dataset.o='done';});
     at(8600,function(){orbs[2].dataset.o='error';screen.dataset.state='error';paintTerm('error');pressChip('error');});
     at(10200,function(){orbs[2].dataset.o='done';});
-    at(11000,function(){orbs.forEach(function(o){o.dataset.o='done';});screen.classList.add('flash');screen.dataset.state='done';paintTerm('done');pressChip('done');});
+    at(11000,function(){orbs.forEach(function(o){o.dataset.o='done';});screen.dataset.state='done';paintTerm('done');pressChip('done');});
     at(12700,function(){screen.classList.remove('flash');screen.dataset.state='idle';paintTerm('idle');orbs.forEach(function(o){o.dataset.o='idle';});pressChip('idle');stopPlay();});
   }
   playBtn.addEventListener('click',playScene);
