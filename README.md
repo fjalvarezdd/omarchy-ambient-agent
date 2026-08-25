@@ -44,6 +44,10 @@ agent-ambient working; npm run build; agent-ambient done
 
 If your agent or editor can run a command on events, point it at `agent-ambient <state>` — e.g. *starting a task* → `working`, *waiting for your approval* → `needs`, *finished* → `done`. A ready-to-adapt hook example lives in [`hooks/`](hooks/).
 
+## Theming
+
+By default the glow uses your **selected Omarchy theme accent** (`Color.accent`), so it matches whatever theme you're on. The **done** state is a solid blue. Override any of it in the config (`colors`, `doneColor`).
+
 ## Configure it
 
 Edit `~/.config/omarchy/ambient-agent.json` — it hot-reloads, no restart:
