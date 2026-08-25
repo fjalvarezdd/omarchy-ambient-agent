@@ -17,31 +17,18 @@ Scope {
   }
   function defPeriod(s){ return s==="working" ? 3800 : (s==="needs" ? 1500 : 1100); }
   function n(k,d){ return (cfg && cfg[k]!==undefined && cfg[k]!==null) ? cfg[k] : d; }
+  function nn(k,d){ var v=Number(n(k,d)); return isFinite(v)?v:d; }
 
   readonly property bool animate: state === "working" || state === "needs" || state === "error"
-  readonly property int  period: (cfg.periods && cfg.periods[state]) ? cfg.periods[state] : defPeriod(state)
+  readonly property int  period: Math.max(400, (cfg.periods && isFinite(Number(cfg.periods[state]))) ? Number(cfg.periods[state]) : defPeriod(state))
   readonly property color glow:  state === "idle" ? "transparent"
                                   : ((cfg.colors && cfg.colors[state]) ? cfg.colors[state] : defColor(state))
-  readonly property int   bw:    n("borderWidth", 3)
-  readonly property int   gw:    n("glowWidth", 26)
-  readonly property real  gop:   n("glowOpacity", 0.40)
-  readonly property int   rad:   n("radius", 16)
+  readonly property int   bw:    Math.max(0, Math.min(24, nn("borderWidth", 3)))
+  readonly property int   gw:    Math.max(0, Math.min(160, nn("glowWidth", 26)))
+  readonly property real  gop:   Math.max(0, Math.min(1, nn("glowOpacity", 0.40)))
+  readonly property int   rad:   Math.max(0, Math.min(48, nn("radius", 16)))
   readonly property bool  enabled: n("enabled", true)
 
-
-  // Auto-instalación en el primer arranque: CLI + config + fichero de estado.
-  // Hace que `omarchy plugin add ... --enable` sea suficiente (sin clonar ni install.sh).
-  Process {
-    id: bootstrap
-    running: true
-    command: ["bash","-lc",
-      "D=\"$HOME/.config/omarchy/plugins/ambient-agent\"; " +
-      "mkdir -p \"$HOME/.local/state/omarchy\" \"$HOME/.local/bin\" \"$HOME/.config/omarchy\"; " +
-      "[ -f \"$HOME/.local/state/omarchy/agent-ambient\" ] || printf idle > \"$HOME/.local/state/omarchy/agent-ambient\"; " +
-      "[ -f \"$D/bin/agent-ambient\" ] && install -m755 \"$D/bin/agent-ambient\" \"$HOME/.local/bin/agent-ambient\"; " +
-      "[ -f \"$HOME/.config/omarchy/ambient-agent.json\" ] || cp \"$D/ambient-agent.json\" \"$HOME/.config/omarchy/ambient-agent.json\" 2>/dev/null; " +
-      "true"]
-  }
 
   // state file — bounded, safe read: regular file only (no symlink/FIFO/device),
   // 256-byte ceiling, 1s deadline. Cannot exhaust or block the shared shell.
@@ -50,7 +37,7 @@ Scope {
     command: ["timeout","1","python3","-c","import os,sys,stat\ntry:\n fd=os.open(sys.argv[1],os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)\nexcept OSError:\n sys.exit(0)\ntry:\n st=os.fstat(fd)\n if stat.S_ISREG(st.st_mode): sys.stdout.buffer.write(os.read(fd,int(sys.argv[2])))\nfinally:\n os.close(fd)", Quickshell.env("HOME") + "/.local/state/omarchy/agent-ambient", "256"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: { var s=(text||"").trim(); if(s.length) root.state=s; } }
   }
-  Timer { interval: 300; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!reader.running) reader.running = true }
+  Timer { interval: 500; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!reader.running) reader.running = true }
 
   // config file (hot-reload) — bounded, safe read: regular file only, 8 KB ceiling,
   // 1s deadline. Oversized or malformed input simply falls back to defaults.
@@ -59,7 +46,7 @@ Scope {
     command: ["timeout","1","python3","-c","import os,sys,stat\ntry:\n fd=os.open(sys.argv[1],os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)\nexcept OSError:\n sys.exit(0)\ntry:\n st=os.fstat(fd)\n if stat.S_ISREG(st.st_mode): sys.stdout.buffer.write(os.read(fd,int(sys.argv[2])))\nfinally:\n os.close(fd)", Quickshell.env("HOME") + "/.config/omarchy/ambient-agent.json", "8192"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: { try { var o=JSON.parse(text||"{}"); root.cfg=o; } catch(e) {} } }
   }
-  Timer { interval: 3000; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!cfgReader.running) cfgReader.running = true }
+  Timer { interval: 5000; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!cfgReader.running) cfgReader.running = true }
 
   Variants {
     model: Quickshell.screens

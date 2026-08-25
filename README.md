@@ -10,13 +10,19 @@ The screen edge *breathes* cyan while an agent works, warms to amber the moment 
 
 ![demo](demo.gif)
 
-## Install (one command)
+## Install
 
 ```bash
+# 1) the overlay (Quickshell plugin)
 omarchy plugin add https://github.com/fjalvarezdd/omarchy-ambient-agent --enable
+
+# 2) the agent-ambient helper CLI + a default config
+git clone https://github.com/fjalvarezdd/omarchy-ambient-agent
+cd omarchy-ambient-agent && ./install.sh
 ```
 
-That's it. The plugin drops in, enables itself, and on first run installs the tiny `agent-ambient` helper and a default config. No clone, no build.
+The overlay itself only ever *reads* its state — it never writes to your filesystem. Prefer no CLI? Anything can drive it by writing one word (`working`/`needs`/`done`/`error`/`idle`) to `~/.local/state/omarchy/agent-ambient`.
+
 
 ## Drive it
 

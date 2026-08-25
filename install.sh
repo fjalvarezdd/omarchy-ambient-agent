@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
-# Instala Ambient Agent (plugin del shell de Omarchy + CLI).
+# Installs Ambient Agent: the plugin (if not added via `omarchy plugin add`),
+# the agent-ambient CLI, and a default config. Explicit, idempotent.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
-# 1) CLI
-mkdir -p "$HOME/.local/bin"
+PLUGDIR="$HOME/.config/omarchy/plugins/ambient-agent"
+mkdir -p "$PLUGDIR" "$HOME/.local/bin" "$HOME/.config/omarchy" "$HOME/.local/state/omarchy"
+cp "$HERE/manifest.json" "$HERE/Service.qml" "$PLUGDIR/"
 install -m755 "$HERE/bin/agent-ambient" "$HOME/.local/bin/agent-ambient"
-# 2) plugin (si no usaste 'omarchy plugin add')
-mkdir -p "$HOME/.config/omarchy/plugins/ambient-agent"
-cp "$HERE/plugin/"* "$HOME/.config/omarchy/plugins/ambient-agent/"
-# 3) config (no pisa la tuya si ya existe)
+# don't clobber an existing config
 [ -f "$HOME/.config/omarchy/ambient-agent.json" ] || cp "$HERE/ambient-agent.json" "$HOME/.config/omarchy/ambient-agent.json"
-# 4) activar
 omarchy plugin enable ambient-agent 2>/dev/null || true
 omarchy restart shell 2>/dev/null || true
-echo "✓ Ambient Agent instalado. Prueba:  agent-ambient working   (y  agent-ambient idle)"
-echo "  Integración automática: llama a agent-ambient <estado> desde los hooks de tu agente (ver hooks/example-hooks.json)."
+echo "✓ Ambient Agent installed. Try:  agent-ambient working   (then  agent-ambient idle)"
+echo "  Wire it to your agent's hooks — see hooks/example-hooks.json."
