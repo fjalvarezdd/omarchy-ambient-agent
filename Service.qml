@@ -47,7 +47,7 @@ Scope {
   // 256-byte ceiling, 1s deadline. Cannot exhaust or block the shared shell.
   Process {
     id: reader
-    command: ["timeout","1","sh","-c","F=\"$1\"; [ -f \"$F\" ] && [ ! -L \"$F\" ] && head -c 256 -- \"$F\" || true","_", Quickshell.env("HOME") + "/.local/state/omarchy/agent-ambient"]
+    command: ["timeout","1","python3","-c","import os,sys,stat\ntry:\n fd=os.open(sys.argv[1],os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)\nexcept OSError:\n sys.exit(0)\ntry:\n st=os.fstat(fd)\n if stat.S_ISREG(st.st_mode): sys.stdout.buffer.write(os.read(fd,int(sys.argv[2])))\nfinally:\n os.close(fd)", Quickshell.env("HOME") + "/.local/state/omarchy/agent-ambient", "256"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: { var s=(text||"").trim(); if(s.length) root.state=s; } }
   }
   Timer { interval: 300; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!reader.running) reader.running = true }
@@ -56,7 +56,7 @@ Scope {
   // 1s deadline. Oversized or malformed input simply falls back to defaults.
   Process {
     id: cfgReader
-    command: ["timeout","1","sh","-c","F=\"$1\"; [ -f \"$F\" ] && [ ! -L \"$F\" ] && head -c 8192 -- \"$F\" || true","_", Quickshell.env("HOME") + "/.config/omarchy/ambient-agent.json"]
+    command: ["timeout","1","python3","-c","import os,sys,stat\ntry:\n fd=os.open(sys.argv[1],os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)\nexcept OSError:\n sys.exit(0)\ntry:\n st=os.fstat(fd)\n if stat.S_ISREG(st.st_mode): sys.stdout.buffer.write(os.read(fd,int(sys.argv[2])))\nfinally:\n os.close(fd)", Quickshell.env("HOME") + "/.config/omarchy/ambient-agent.json", "8192"]
     stdout: StdioCollector { waitForEnd: true; onStreamFinished: { try { var o=JSON.parse(text||"{}"); root.cfg=o; } catch(e) {} } }
   }
   Timer { interval: 3000; running: true; repeat: true; triggeredOnStart: true; onTriggered: if(!cfgReader.running) cfgReader.running = true }
